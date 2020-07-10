@@ -21,4 +21,4 @@ Note that NET3 is performing best on the data, therefore run prediction on new c
 or run prediction on default settings as follows:
         
         python predict.py
-        or runn all cells in FRBID - prediction-phase.ipynb
+        or run all cells in FRBID - prediction-phase.ipynb

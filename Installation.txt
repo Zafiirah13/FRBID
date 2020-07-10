@@ -1,0 +1,60 @@
+"""
+Authors : Zafiirah Hosenie
+Email : zafiirah.hosenie@gmail.com or zafiirah.hosenie@postgrad.manchester.ac.uk
+Affiliation : The University of Manchester, UK.
+License : MIT
+Status : Under Development
+Description :
+Python implementation for FRBID: Fast Radio Burst Intelligent Distinguisher.
+This code is tested in Python 3 version 3.5.3  
+"""
+
+'------------------------------------------------------------------------------------------------------------'
+										SETTING UP PYTHON ENVIRONMENT
+'------------------------------------------------------------------------------------------------------------'
+# Create new environment
+conda create -n name_env python=3.6 for e.g conda create -n frbrfi python==3.6
+
+# Activate the environment
+conda activate frbrfi
+
+# Install the required packages
+conda install numpy pandas jupyter notebook matplotlib scipy h5py
+conda install tensorflow-gpu==1.9.0
+pip install -U imbalanced-learn
+pip install scikit-learn==0.23.1
+pip install Keras==2.0.9
+
+# Note that atleast 1 GPU should be available to run the codes
+If only one GPU available, on terminal run
+1. export CUDA_VISIBLE_DEVICES=1 # This choose the first GPU
+2. If you are running jupyter notebook, then type jupyter notebook else, just run the .py script normally. For e.g python train.py or python predict.py
+
+
+'------------------------------------------------------------------------------------------------------------'
+									 TRAIN MODEL FROM SCRATCH
+'------------------------------------------------------------------------------------------------------------'
+The model can be train either by using 'train.py' or 'FRBID - DEMO.ipynb'
+
+With Notebook:
+On terminal: Jupyter notebook and then open 'FRBID - DEMO.ipynb' in a browser and run all cells. Note that there are some parameters that needs to be changed : For e.g directory where the training and test set are located. Also other parametrs for e.g Model Name can be used according.
+
+With Python Script:
+On terminal, type: python train.py. Some parameters need to be changed - training and test set directory, model_name...
+
+
+'------------------------------------------------------------------------------------------------------------'
+							   PREDICTION USING ALREADY TRAINED MODEL
+'------------------------------------------------------------------------------------------------------------'
+New hdf5 candidates can be predicted directly without training the model again. Here we use weights from FRBID_model to perform prediction. For this step, one can use either
+1. predict.py, or
+2. FRBID - prediction-phase.ipynb
+
+With Python Script:
+Note that, predict.py takes some arguments that can be specified during prediction
+1. --data_dir (directory where hdf5 files located), --result_dir(directory to save the csv file), --model_cnn_name (NET2. NET3,...), --n_images ('dm_fq_time), --probability (0.5) --> Open script to have more info about those parameters.
+
+One example how to run it: python predict.py -d ./data/test_set/ -r ./data/results_csv/ -n dm_fq_time -m NET3 -p 0.5 or run directly with default settings: python predict.py
+
+With Jupyter notebook:
+Change the parameters in the second cells and then run all cells

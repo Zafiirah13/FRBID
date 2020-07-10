@@ -10,7 +10,7 @@ This code is tested in Python 3 version 3.5.3
 """
 
 '------------------------------------------------------------------------------------------------------------'
-										SETTING UP PYTHON ENVIRONMENT
+				     SETTING UP PYTHON ENVIRONMENT
 '------------------------------------------------------------------------------------------------------------'
 # Create new environment
 conda create -n name_env python=3.6 for e.g conda create -n frbrfi python==3.6
@@ -32,19 +32,19 @@ If only one GPU available, on terminal run
 
 
 '------------------------------------------------------------------------------------------------------------'
-									 TRAIN MODEL FROM SCRATCH
+					TRAIN MODEL FROM SCRATCH
 '------------------------------------------------------------------------------------------------------------'
-The model can be train either by using 'train.py' or 'FRBID - DEMO.ipynb'
+The model can be trained either by using 'train.py' or 'FRBID - DEMO.ipynb'
 
 With Notebook:
-On terminal: Jupyter notebook and then open 'FRBID - DEMO.ipynb' in a browser and run all cells. Note that there are some parameters that needs to be changed : For e.g directory where the training and test set are located. Also other parametrs for e.g Model Name can be used according.
+On terminal: Jupyter notebook and then open 'FRBID - DEMO.ipynb' in a browser and run all cells. Note that there are some parameters that needs to be changed : For e.g directory where the training and test set are located. Also other parameters for e.g Model Name can be changed accordingly.
 
 With Python Script:
 On terminal, type: python train.py. Some parameters need to be changed - training and test set directory, model_name...
 
 
 '------------------------------------------------------------------------------------------------------------'
-							   PREDICTION USING ALREADY TRAINED MODEL
+				    PREDICTION USING ALREADY TRAINED MODEL
 '------------------------------------------------------------------------------------------------------------'
 New hdf5 candidates can be predicted directly without training the model again. Here we use weights from FRBID_model to perform prediction. For this step, one can use either
 1. predict.py, or

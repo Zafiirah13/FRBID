@@ -9,5 +9,6 @@ Follow the instructions in Installation.txt to install all dependencies.
 Training and Prediction
 ---
 To train the model from scratch, either use `FRBID - DEMO.ipynb` or `train.py`.
+
         python train.py
 

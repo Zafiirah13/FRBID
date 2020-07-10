@@ -8,7 +8,15 @@ Follow the instructions in Installation.txt to install all dependencies.
 
 Training and Prediction
 ---
-To train the model from scratch, either use `FRBID - DEMO.ipynb` or `train.py`.
+To train the model from scratch, either use `FRBID - DEMO.ipynb` or `train.py`. Note that there are several parameters that need to be changed if one want different configuration, else run the code as follows:
 
         python train.py
 
+To make prediction on new candidates that do not have a label, use either `FRBID - prediction-phase.ipynb` or `predict.py`. Note that a directory containing all `h5` candidate files should be available and some parameters need to be specified, for e.g the model_name, the directory to save the csv file containing the prediction, the directory of the `h5` files and the threshold probability.
+
+Note that NET3 is performing best on the data, therefore run prediction on new candidate files as follows:
+
+        python predict.py -d ./data/test_set/ -r ./data/results_csv/ -n dm_fq_time -m NET3 -p 0.5              
+or run prediction on default settings as follows:
+        
+        python predict.py

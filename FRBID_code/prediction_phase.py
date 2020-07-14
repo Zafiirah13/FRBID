@@ -17,11 +17,12 @@ import glob
 import h5py
 from FRBID_code.util import ensure_dir
 from keras.models import model_from_json
+from os import path
+from glob import glob
 
 #-------------------------------------------------------
 #----Load Candidate images and Stacked them for CNN-----
 #-------------------------------------------------------
-
 
 
 def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time'):
@@ -35,22 +36,22 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time'):
         X_img (array): Return candidates pixels in an array with same (N, 256, 256, 2) if n_images='dm_fq_time'
         ID (array): An array of candidate filename that are in that folder
     '''
-    ID = []; y = []
+    ID = []
     dm_time = [] ; fq_time = []
     
-    list_hdf5_filename = os.listdir(data_dir)
-    list_hdf5_path = glob.glob(data_dir+'*.hdf5')
+    hdf5_files = glob(path.join(data_dir, '*.hdf5'))
      
-    for i in range(len(list_hdf5_filename)):
-        with h5py.File(str(list_hdf5_path[i]), 'r') as f:
+    for h5file in hdf5_files:
+        with h5py.File(h5file, 'r') as f:
             dm_t = np.array(f['data_dm_time'])
             fq_t = np.array(f['data_freq_time']).T
-            dm_time.append(dm_t); fq_time.append(fq_t); ID.append(list_hdf5_filename[i])
+            dm_time.append(dm_t)
+            fq_time.append(fq_t)
+            ID.append(h5file)
 
     dm_time_img = np.expand_dims(np.array(dm_time),1)
     fq_time_img = np.expand_dims(np.array(fq_time),1)
 
-    
     if n_images == 'dm_fq_time':
         X_img = np.stack((dm_time_img,fq_time_img),axis=-1)
         X_img = X_img.reshape(X_img.shape[0], 256, 256, 2)

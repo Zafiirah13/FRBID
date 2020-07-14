@@ -17,22 +17,13 @@ This code is tested in Python 3 version 3.5.3
 
 import warnings
 warnings.filterwarnings("ignore")
-import os
-import numpy as np
-import pandas as pd
-from FRBID_code.model import compile_model,model_save 
-import matplotlib.pylab as plt
-from keras.utils import np_utils
-from time import gmtime, strftime
-from FRBID_code.util import makedirs, ensure_dir
 from FRBID_code.prediction_phase import load_candidate, FRB_prediction
 import argparse
 
-
 parser = argparse.ArgumentParser()
-parser.add_argument('-dd','--data_dir', help='The directory where the hdf5 candidates are located',type=str,default='./data/test_set/')
-parser.add_argument('-rd','--result_dir',help='The directory where the csv file after prediction will be saved',type=str,default='./data/results_csv/')
-parser.add_argument('-m','--model_cnn_name',help='The network name choose from: NET1_32_64  NET1_64_128  NET1_128_256  NET2  NET3', type=str,default='NET3')
+parser.add_argument('-d','--data_dir', help='The directory where the hdf5 candidates are located', required=True, type=str)
+parser.add_argument('-r','--result_dir',help='The directory where the csv file after prediction will be saved', required=True, type=str)
+parser.add_argument('-m','--model_cnn_name',help='The network name choose from: NET1_32_64  NET1_64_128  NET1_128_256  NET2  NET3', type=str, default='NET3')
 parser.add_argument('-n','--n_images',help='The images to consider and can take str as either dm_fq_time dm_time fq_time', type=str, default='dm_fq_time')
 parser.add_argument('-p', '--probability', help='Detection threshold', default=0.5, type=float)
 args = parser.parse_args()

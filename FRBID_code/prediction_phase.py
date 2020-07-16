@@ -107,5 +107,5 @@ def FRB_prediction(model_name, X_test, ID, result_dir, probability):
     overall_dataframe['probability'] = overall_real_prob
     overall_dataframe['label'] = np.round(overall_real_prob>=probability)
     ensure_dir(result_dir)
-    overall_dataframe.to_csv(result_dir+'results_'+model_name+'.csv',index=None)
+    overall_dataframe.to_csv(path.join(result_dir, 'results_' + model_name + '.csv'),index=None)
     return overall_real_prob, overall_dataframe

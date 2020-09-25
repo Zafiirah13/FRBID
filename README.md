@@ -1,3 +1,7 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4049946.svg)](https://doi.org/10.5281/zenodo.4049946)
+[![issues](https://img.shields.io/github/issues/Zafiirah13/FRBID)](https://github.com/Zafiirah13/FRBID/issues)
+[![forks](https://img.shields.io/github/forks/Zafiirah13/FRBID)](https://github.com/Zafiirah13/FRBID/network/members)
+[![stars](https://img.shields.io/github/stars/Zafiirah13/FRBID)](https://github.com/Zafiirah13/FRBID/stargazers)
 # FRBID - MeerKAT Fast Radio Burst Intelligent Distinguisher using Deep Learning
 
 Identification of Fast Radio Burst/Single Pulses (FRB/SP) and Radio Frequency Interference (RFI) using Deep Convolutional Neural Network for MeerKAT facility.

@@ -42,15 +42,11 @@ def load_candidate(data: Dict):
     dm_time.append(data["dmt"])
     fq_time.append(data["dedisp"])
     
-
     dm_time_img = np.expand_dims(np.array(dm_time),1)
     fq_time_img = np.expand_dims(np.array(fq_time),1)
 
     X_img = np.stack((dm_time_img,fq_time_img),axis=-1)
     X_img = X_img.reshape(X_img.shape[0], 256, 256, 2)
-
-    X_img = X_img/255.
-
     X_img = X_img.astype(np.float32)
 
     return X_img

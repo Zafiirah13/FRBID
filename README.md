@@ -4,7 +4,9 @@
 [![stars](https://img.shields.io/github/stars/Zafiirah13/FRBID)](https://github.com/Zafiirah13/FRBID/stargazers)
 # FRBID - MeerKAT Fast Radio Burst Intelligent Distinguisher using Deep Learning
 
-Identification of Fast Radio Burst/Single Pulses (FRB/SP) and Radio Frequency Interference (RFI) using Deep Convolutional Neural Network for MeerKAT facility.
+Identification of Fast Radio Burst/Single Pulses (FRB/SP) and Radio Frequency Interference (RFI) using Deep Convolutional Neural Network for MeerKAT facility. The code uses two inputs: the DM-Time and Frequency-Time images/arrays. Both images are stacked together and act as an input to a CNN.
+
+![alt tag](Single-Input-FRBID.png)
 
 Installation
 ---

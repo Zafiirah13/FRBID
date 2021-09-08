@@ -6,5 +6,5 @@ matplotlib==3.0.3
 scipy==1.2.1
 Keras==2.0.9
 imblearn==0.0
-Pillow==7.1.2
+Pillow==8.3.2
 scikit_learn==0.23.1

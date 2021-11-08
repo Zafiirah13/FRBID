@@ -20,19 +20,16 @@ import numpy as np
 import pandas as pd
 from FRBID_code.load_data import load_data, shuffle_all
 
-import matplotlib.pylab as plt
 from keras.utils import np_utils
 from time import gmtime, strftime, time
 from sklearn.model_selection import train_test_split
 
-#from load_data import shuffle_all, load_data
 from FRBID_code.model import compile_model,model_save 
 from FRBID_code.plot import optimsation_curve, feature_maps, plot_images
 from FRBID_code.evaluation import model_prediction, save_classified_examples
 from FRBID_code.util import makedirs, ensure_dir
 
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
 
 parser = ap.ArgumentParser(description="FRBID: Fast Radio Burst Intelligent Distinguisher")
 parser.add_argument("--trainc", 
@@ -64,7 +61,6 @@ parser.add_argument("--plots",
 arguments = parser.parse_args()
 
 config = tf.ConfigProto()
-#config.gpu_options.allow_growth = True
 config.gpu_options.per_process_gpu_memory_fraction = 0.8
 sess = tf.Session(config=config)
 

@@ -195,21 +195,21 @@ def plot_images(data, ID, y_true, odir, savefig=False, show=True):
         savefig: True if one want to save the images
     '''
     for j in range(data.shape[0]):
-        fig, axs = plt.subplots(1,data.shape[3], figsize=(15, 4), facecolor='w', edgecolor='k')
+        fig, axs = plt.subplots(1, data.shape[3], figsize=(15, 4), facecolor='w', edgecolor='k')
         fig.subplots_adjust(hspace = .2, wspace=.05)
         titles = ['DM-Time','Frequency-Time']    
         axs    = axs.ravel()
 
         for i in range(1,data.shape[3]+1):
             varray = data[j,:,:,i-1]
-            im     = axs[i-1].imshow(varray[:,:])#,cmap='gray')
+            im     = axs[i-1].imshow(varray[:,:], cmap='gray')
             cb     = fig.colorbar(im,fraction=0.046, pad=0.04,ax=axs[i-1])
             cb.ax.tick_params(labelsize=14)
             axs[i-1].title.set_text(titles[i-1])
         
         plt.tight_layout() 
         if savefig:
-        	ofname = os.path.join(odir, str(y_true[j]), str(ID[j]) + ".png")
+        	ofname = os.path.join(odir, str(y_true[j]), str(ID[j]) + ".jpg")
         	ensure_dir(ofname)
         	plt.savefig(ofname,bbox_inches = 'tight',pad_inches = 0.1)
 

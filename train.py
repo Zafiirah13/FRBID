@@ -21,7 +21,7 @@ from FRBID_code.load_data import load_data, shuffle_all
 
 import matplotlib.pylab as plt
 from keras.utils import np_utils
-from time import gmtime, strftime
+from time import gmtime, strftime, time
 from sklearn.model_selection import train_test_split
 
 #from load_data import shuffle_all, load_data
@@ -58,9 +58,13 @@ makedirs(output_directory)
 # Parameters to change: csv_files and data_dir
 #----------------------------------------------------------------------------------------------------------------#
 
-X_train, y_train, ID_train = load_data(csv_files='./data/csv_labels/train_set.csv', data_dir = './data/training_set/',n_images = 'dm_fq_time')
+load_start = time()
+X_train, y_train, ID_train = load_data(csv_files='/home/mateusz/Desktop/MeerTRAP/frbid_retrain/train_set_short.csv', data_dir = '/home/mateusz/Desktop/MeerTRAP/frbid_retrain/data/train/',n_images = 'dm_fq_time')
+load_end = time()
+print("Loading the training data of size %d took %.2fs" % (X_train.shape[0], load_end - load_start))
+plot_images(X_train, ID_train, y_train, '/home/mateusz/Desktop/MeerTRAP/frbid_retrain/data/check_plots/', savefig=True, show=False)
 
-X_test, y_test, ID_test = load_data(csv_files='./data/csv_labels/test_set.csv', data_dir = './data/test_set/',n_images = 'dm_fq_time')
+X_test, y_test, ID_test = load_data(csv_files='/home/mateusz/Desktop/MeerTRAP/frbid_retrain/test_set_short.csv', data_dir = '/home/mateusz/Desktop/MeerTRAP/frbid_retrain/data/test/',n_images = 'dm_fq_time')
 
 # shuffle training data  (potentially twice, via data augmentation as well)
 X_train_, y_train_ = shuffle_all([X_train, y_train], len(y_train), seed=seed)

@@ -209,7 +209,7 @@ def plot_images(data, ID, y_true, odir, savefig=False, show=True):
         
         plt.tight_layout() 
         if savefig:
-        	ofname = os.path.join(odir, str(y_true[j]), str(ID[j]) + ".pdf")
+        	ofname = os.path.join(odir, str(y_true[j]), str(ID[j]) + ".png")
         	ensure_dir(ofname)
         	plt.savefig(ofname,bbox_inches = 'tight',pad_inches = 0.1)
 

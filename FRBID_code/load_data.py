@@ -223,7 +223,7 @@ def shuffle_all(L, n, seed=0):
     return L
 
 #change to train_set.csv file
-def load_data(csv_files='./data/csv_labels/train_set.csv', data_dir = './data/training_set/',n_images = 'dm_fq_time'):
+def load_data(csv_files='./train_set.csv', data_dir = './data/train/', n_images = 'dm_fq_time'):
     ID = []; y = []
     dm_time = [] ; fq_time = []
     

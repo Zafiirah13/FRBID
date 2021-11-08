@@ -15,6 +15,7 @@ This code is tested in Python 3 version 3.5.3
 import warnings
 warnings.filterwarnings("ignore")
 import os
+import argparse as ap
 import numpy as np
 import pandas as pd
 from FRBID_code.load_data import load_data, shuffle_all
@@ -33,6 +34,34 @@ from FRBID_code.util import makedirs, ensure_dir
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 
+parser = ap.ArgumentParser(description="FRBID: Fast Radio Burst Intelligent Distinguisher")
+parser.add_argument("--trainc", 
+                    help="Training data CSV",
+                    required=False,
+                    type=str,
+                    default="./train_set.csv")
+parser.add_argument("--testc",
+                    help="Test data CSV",
+                    required=False,
+                    type=str,
+                    default="./test_set.csv")
+parser.add_argument("--traind",
+                    help="Training data directory",
+                    required=False,
+                    type=str,
+                    default="./data/train")
+parser.add_argument("--testd",
+                    help="Test data directory",
+                    required=False,
+                    type=str,
+                    default="./data/test")
+parser.add_argument("--plots",
+                    help="Test plots directory",
+                    required=False,
+                    type=str,
+                    default="./data/plots")
+
+arguments = parser.parse_args()
 
 config = tf.ConfigProto()
 #config.gpu_options.allow_growth = True
@@ -59,12 +88,12 @@ makedirs(output_directory)
 #----------------------------------------------------------------------------------------------------------------#
 
 load_start = time()
-X_train, y_train, ID_train = load_data(csv_files='/home/mateusz/Desktop/MeerTRAP/frbid_retrain/train_set_short.csv', data_dir = '/home/mateusz/Desktop/MeerTRAP/frbid_retrain/data/train/',n_images = 'dm_fq_time')
+X_train, y_train, ID_train = load_data(csv_files=arguments.trainc, data_dir=arguments.traind, n_images='dm_fq_time')
 load_end = time()
 print("Loading the training data of size %d took %.2fs" % (X_train.shape[0], load_end - load_start))
-plot_images(X_train, ID_train, y_train, '/home/mateusz/Desktop/MeerTRAP/frbid_retrain/data/check_plots/', savefig=True, show=False)
+plot_images(X_train, ID_train, y_train, arguments.plots, savefig=True, show=False)
 
-X_test, y_test, ID_test = load_data(csv_files='/home/mateusz/Desktop/MeerTRAP/frbid_retrain/test_set_short.csv', data_dir = '/home/mateusz/Desktop/MeerTRAP/frbid_retrain/data/test/',n_images = 'dm_fq_time')
+X_test, y_test, ID_test = load_data(csv_files=arguments.testc, data_dir=arguments.testd, n_images='dm_fq_time')
 
 # shuffle training data  (potentially twice, via data augmentation as well)
 X_train_, y_train_ = shuffle_all([X_train, y_train], len(y_train), seed=seed)

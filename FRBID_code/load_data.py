@@ -16,13 +16,22 @@ import pandas as pd
 
 import h5py
 
-import matplotlib.pylab as plt
 import os
 from os import path
 
 def _get_data_path():
     path = "./data/"
     return path
+
+def normalise(input):
+
+    median = np.median(input)
+    stdev = np.std(input)
+
+    input -= median
+    input /= stdev
+
+    return input
 
 def pad_freq_tm(L):
     '''INPUT:
@@ -150,7 +159,8 @@ def generate_dm_time(L, params, freq_time):
             # freq_time[i_chan, :] = np.roll(freq_time[i_chan, :], int((-1)*round(shift_chan)), axis=0) #because we are shifting the dedispersed signal
         dm_time[(j_dm), :] = freq_time.sum(axis=0)
         j_dm = j_dm + 1
-    return dm_time
+
+    return normalise(dm_time)
 
 def shuffle_all(L, n, seed=0):
     '''INPUT:

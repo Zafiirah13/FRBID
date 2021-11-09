@@ -185,7 +185,6 @@ def load_data(csv_files='./train_set.csv', data_dir = './data/train/', n_images 
             label = row.label.values[0]
             ID.append(cand_name)
             y.append(label)
-            print(hdf5_file)
             with h5py.File(path.join(data_dir, cand_name), "r+") as hf:
                 params = get_parameters(row, hf)
 
@@ -204,9 +203,6 @@ def load_data(csv_files='./train_set.csv', data_dir = './data/train/', n_images 
                     hf["/cand/ml/dm_time"][...] = dm_t
 
                 fq_t = np.array(hf['/cand/ml/freq_time'])
-
-                print(dm_t.shape)
-                print(fq_t.shape)
 
                 dm_time.append(dm_t)
                 fq_time.append(fq_t)

@@ -16,6 +16,7 @@ import os
 import glob
 import h5py
 from FRBID_code.util import ensure_dir
+from FRBID_code.load_data import generate_dm_time, get_parameters
 from keras.models import model_from_json
 from os import path
 from glob import glob
@@ -25,7 +26,7 @@ from glob import glob
 #-------------------------------------------------------
 
 
-def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time'):
+def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_csv="candidates.csv"):
     '''
     Function to select only .hdf5 files from a specified directory and then load them as np.array
     Keeps track of the filename
@@ -38,16 +39,37 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time'):
     '''
     ID = []
     dm_time = [] ; fq_time = []
-    
+    cand_info = pd.read_csv(cands_csv)
+
     hdf5_files = glob(path.join(data_dir, '*.hdf5'))
      
-    for h5file in hdf5_files:
-        with h5py.File(h5file, 'r') as f:
-            dm_t = np.array(f['data_dm_time'])
-            fq_t = np.array(f['data_freq_time']).T
-            dm_time.append(dm_t)
-            fq_time.append(fq_t)
-            ID.append(h5file)
+    freq_time_tmp = np.empty((256, 256), dtype=np.float32)
+
+    for hdf5_file in hdf5_files:
+        row = cand_info[cand_info.hdf5.str.match(hdf5_file)]
+        if (row.shape[0] != 0):
+            with h5py.File(hdf5_file, 'r') as hf:
+                params = get_parameters(row, hf)
+
+                if "/cand/ml/old/dm_time" in hf:
+                    dm_t = np.array(hf["/cand/ml/dm_time"])
+                # We have not processed this file yet
+                # Generate the DM-time plane and save it into the archive,
+                # so that we can use it afterwards
+                else:
+                    dm_t = generate_dm_time(hf['/cand/ml/freq_time'], params, freq_time_tmp)
+                    old_ml_group = hf.create_group("/cand/ml/old")
+                    old_ml_group.attrs["label"] = hf["/cand/ml"].attrs["label"]
+                    old_ml_group.attrs["prob"] = hf["/cand/ml"].attrs["prob"]
+                    old_dm_time_dataset = old_ml_group.create_dataset("dm_time", data=hf["/cand/ml/dm_time"])
+                    old_freq_time_dataset = old_ml_group.create_dataset("freq_time", data=hf["/cand/ml/freq_time"])
+                    hf["/cand/ml/dm_time"][...] = dm_t
+
+                fq_t = np.array(hf['/cand/ml/freq_time'])
+
+                dm_time.append(dm_t)
+                fq_time.append(fq_t)
+                ID.append(hdf5_file)
 
     dm_time_img = np.expand_dims(np.array(dm_time),1)
     fq_time_img = np.expand_dims(np.array(fq_time),1)
@@ -62,8 +84,6 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time'):
 
     if n_images == 'fq_time':
         X_img = fq_time_img.reshape(fq_time_img.shape[0], 256, 256 , 1)
-
-    X_img = X_img/255.
 
     ID = np.array(ID)
     X_img = X_img.astype(np.float32)

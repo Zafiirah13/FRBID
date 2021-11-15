@@ -26,6 +26,7 @@ parser.add_argument('-r','--result_dir',help='The directory where the csv file a
 parser.add_argument('-m','--model_cnn_name',help='The network name choose from: NET1_32_64  NET1_64_128  NET1_128_256  NET2  NET3', type=str, default='NET3')
 parser.add_argument('-n','--n_images',help='The images to consider and can take str as either dm_fq_time dm_time fq_time', type=str, default='dm_fq_time')
 parser.add_argument('-p', '--probability', help='Detection threshold', default=0.5, type=float)
+parser.add_argument("-c", "--cands", help="Candidates CSV file", default="candidates.csv", type=str)
 args = parser.parse_args()
 data_dir, result_dir, model_cnn_name, n_images, probability = args.data_dir, args.result_dir, args.model_cnn_name, args.n_images, args.probability
 
@@ -36,7 +37,7 @@ data_dir, result_dir, model_cnn_name, n_images, probability = args.data_dir, arg
 # - n_images: can either take str 'dm_fq_time', 'dm_time', 'fq_time'
 #------------------------------------------------------------------------------------------------#
 
-test, ID_test = load_candidate(data_dir=data_dir ,n_images=n_images)
+test, ID_test = load_candidate(data_dir=args.data_dir, n_images=n_images, cands_csv = args.cands)
 print("Total number of candidate instances: {}".format(str(len(ID_test))))
 print("The Shape of the test set is {}".format(test.shape))
 

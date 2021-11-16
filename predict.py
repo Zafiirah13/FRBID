@@ -15,6 +15,8 @@ This code is tested in Python 3 version 3.5.3
 # # FRBID prediction phase on new candidate files
 #------------------------------------------------------------------------------------------------#
 
+from time import time
+
 import warnings
 warnings.filterwarnings("ignore")
 from FRBID_code.prediction_phase import load_candidate, FRB_prediction
@@ -36,8 +38,11 @@ data_dir, result_dir, model_cnn_name, n_images, probability = args.data_dir, arg
 # - data_dir: The directory that contains the hdf5 files
 # - n_images: can either take str 'dm_fq_time', 'dm_time', 'fq_time'
 #------------------------------------------------------------------------------------------------#
-
+load_start = time()
 test, ID_test = load_candidate(data_dir=args.data_dir, n_images=n_images, cands_csv = args.cands)
+load_end = time()
+print("Loading the training data of size %d took %.2fs" % (test.shape[0], load_end - load_start))
+
 print("Total number of candidate instances: {}".format(str(len(ID_test))))
 print("The Shape of the test set is {}".format(test.shape))
 
@@ -55,7 +60,7 @@ print("The Shape of the test set is {}".format(test.shape))
 # - overall_dataframe: A table with column candidate name of all sources and its associated probability that it is a FRB source and its labels
 #------------------------------------------------------------------------------------------------#
 
-overall_real_prob,overall_dataframe=FRB_prediction(model_name=model_cnn_name,X_test=test,ID=ID_test,result_dir=result_dir,probability=probability)
+overall_real_prob,overall_dataframe=FRB_prediction(model_name=model_cnn_name,X_test=test,ID=ID_test,result_dir=result_dir,probability=probability, data_dir=args.data_dir)
 print('Prediction completed and is found at {}'.format(str(result_dir)))
 
 

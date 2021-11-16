@@ -19,6 +19,7 @@ from FRBID_code.util import ensure_dir
 from FRBID_code.load_data import generate_dm_time, get_parameters
 from keras.models import model_from_json
 from os import path
+from os import listdir
 from glob import glob
 
 #-------------------------------------------------------
@@ -41,14 +42,14 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_
     dm_time = [] ; fq_time = []
     cand_info = pd.read_csv(cands_csv)
 
-    hdf5_files = glob(path.join(data_dir, '*.hdf5'))
+    hdf5_files = listdir(data_dir)
      
     freq_time_tmp = np.empty((256, 256), dtype=np.float32)
 
     for hdf5_file in hdf5_files:
-        row = cand_info[cand_info.hdf5.str.match(hdf5_file)]
+        row = cand_info[cand_info.hdf5.str.match(path.basename(hdf5_file))]
         if (row.shape[0] != 0):
-            with h5py.File(hdf5_file, 'r') as hf:
+            with h5py.File(hdf5_file, 'r+') as hf:
                 params = get_parameters(row, hf)
 
                 if "/cand/ml/old/dm_time" in hf:
@@ -69,7 +70,7 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_
 
                 dm_time.append(dm_t)
                 fq_time.append(fq_t)
-                ID.append(hdf5_file)
+                ID.append(path.basename(hdf5_file))
 
     dm_time_img = np.expand_dims(np.array(dm_time),1)
     fq_time_img = np.expand_dims(np.array(fq_time),1)
@@ -94,7 +95,7 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_
 #-------Prediction of a candidate-------
 #---------------------------------------
 
-def FRB_prediction(model_name, X_test, ID, result_dir, probability):
+def FRB_prediction(model_name, X_test, ID, result_dir, probability, data_dir):
     '''
     The code will load the pre-trained network and it will perform prediction on new candidate file.
 
@@ -127,5 +128,13 @@ def FRB_prediction(model_name, X_test, ID, result_dir, probability):
     overall_dataframe['probability'] = overall_real_prob
     overall_dataframe['label'] = np.round(overall_real_prob>=probability)
     ensure_dir(result_dir)
+
+    for _, cand in overall_dataframe.iterrows():
+
+        with h5py.File(path.join(data_dir, cand["candidate"]), "r+") as hf:
+
+            hf["/cand/ml"].attrs["prob"] = np.array(cand["probability"], dtype="<f2")
+            hf["/cand/ml"].attrs["label"] = np.array(cand["label"], dtype="<f2")
+
     overall_dataframe.to_csv(path.join(result_dir, 'results_' + model_name + '.csv'),index=None)
     return overall_real_prob, overall_dataframe

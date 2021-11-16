@@ -13,7 +13,6 @@ This code is tested in Python 3 version 3.5.3
 import numpy as np
 import pandas as pd
 import os
-import glob
 import h5py
 from FRBID_code.util import ensure_dir
 from FRBID_code.load_data import generate_dm_time, get_parameters
@@ -42,7 +41,7 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_
     dm_time = [] ; fq_time = []
     cand_info = pd.read_csv(cands_csv)
 
-    hdf5_files = listdir(data_dir)
+    hdf5_files = hdf5_files = glob(path.join(data_dir, "*.hdf5"))
      
     freq_time_tmp = np.empty((256, 256), dtype=np.float32)
 
@@ -133,8 +132,8 @@ def FRB_prediction(model_name, X_test, ID, result_dir, probability, data_dir):
 
         with h5py.File(path.join(data_dir, cand["candidate"]), "r+") as hf:
 
-            hf["/cand/ml"].attrs["prob"] = np.array(cand["probability"], dtype="<f2")
-            hf["/cand/ml"].attrs["label"] = np.array(cand["label"], dtype="<f2")
+            hf["/cand/ml"].attrs["prob"] = np.array([cand["probability"]], dtype="<f2")
+            hf["/cand/ml"].attrs["label"] = np.array([cand["label"]], dtype="<f2")
 
     overall_dataframe.to_csv(path.join(result_dir, 'results_' + model_name + '.csv'),index=None)
     return overall_real_prob, overall_dataframe

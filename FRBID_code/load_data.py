@@ -50,11 +50,10 @@ def pad_freq_tm(L):
     '''
 
     mu, sigma = np.mean(L, axis=1), np.std(L, axis=1)
-    freq_time1 = np.random.normal(mu, sigma, [512,256]).T
+    freq_time1 = np.random.normal(mu, sigma, [512,256]).astype(np.float32).T
     freq_time1[:, 128:384] = L
 
     return freq_time1
-
 def get_parameters(row, h5_data):
     '''INPUT:
     
@@ -144,9 +143,10 @@ def generate_dm_time(L, params, freq_time):
     
     delta_dm = get_dm_range(params) #get DM offset propotional to pulse width
     # Make it (256, 256), extract the right chunk from freq_time
-    dm_time  = np.empty((256,256))
+    dm_time  = np.empty((256,256), dtype=np.float32)
 
     freq_time_backup = pad_freq_tm(L) #pad the data so to not overflow in the image
+    
     const_scaling = k_dm / tsamp_s
     freq_shifts = (1 / np.linspace(freq_hi, freq_lo, 256)**2 - 1 / freq_hi**2) * const_scaling
     
@@ -160,7 +160,7 @@ def generate_dm_time(L, params, freq_time):
         dm_time[(j_dm), :] = freq_time.sum(axis=0)
         j_dm = j_dm + 1
 
-    return normalise(dm_time)
+    return delta_dm, normalise(dm_time)
 
 def shuffle_all(L, n, seed=0):
     '''INPUT:
@@ -186,7 +186,7 @@ def load_data(csv_files='./train_set.csv', data_dir = './data/train/', n_images 
     
     print("Loading files...")
 
-    freq_time_tmp = np.empty((256, 256))
+    freq_time_tmp = np.empty((256, 256), dtype=np.float32)
 
     for hdf5_file in list_hdf5_filename:
         row = data_csv[data_csv.hdf5.str.match(hdf5_file)]

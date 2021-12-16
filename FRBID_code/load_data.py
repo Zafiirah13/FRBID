@@ -10,14 +10,17 @@ Python implementation for FRBID: Fast Radio Burst Intelligent Distinguisher.
 This code is tested in Python 3 version 3.5.3  
 """
 
-
-import numpy as np
-import pandas as pd
+import os
 
 import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scipy.stats
 
-import os
 from os import path
+from scipy import ndimage
+from FRBID_code.util import ensure_dir
 
 def _get_data_path():
     path = "./data/"
@@ -177,6 +180,98 @@ def shuffle_all(L, n, seed=0):
 
     return L
 
+def get_masked_bands(ft):
+
+    """
+    
+    Detect where channels have been masked.
+
+    This process is run in two stages that should cover most cases.
+    First we run horizontal edge detection to remove pulsar signal.
+    This is very important as a strong pulsar can produce a sufficiently
+    non-Gaussian distribution that it will fail a Shapiro-Wilk test.
+    We then use the 'edge detected' data to find places that have 
+    STD values lower than the norm.
+    We then use Shapiro-Wilk test to determine whether the data follows
+    normal distribution.
+
+    Parameters:
+
+        ft: np.array
+            Frequency time data.
+
+    Returns:
+
+        mask: np.array
+            Array with 1 corresponding to channels that had masking
+            applied and 0 to channels that had good data and therefore
+            no masking.
+    
+    """
+    # Run horizontal edge detection to remove potential pulsar signal
+    edge_detected = ndimage.sobel(ft, axis=0)
+    edge_stdev = edge_detected.std(axis=1)
+    median = np.median(edge_stdev)
+    edge_stdev = edge_stdev - median
+
+    for irep in np.arange(3):
+        
+        stdev = edge_stdev.std()
+        edge_stdev = edge_stdev[edge_stdev >= -2 * stdev]
+    
+    edge_stdev = edge_detected.std(axis=1)
+    edge_stdev = edge_stdev - median
+    mask_edge = np.where(edge_stdev < -2 * stdev)[0]
+
+    mask = np.zeros((ft.shape[0])).astype(np.int32)
+
+    for ichan in np.arange(ft.shape[0]):
+
+        if scipy.stats.shapiro(edge_detected[ichan, :]).pvalue > 0.05:
+            mask[ichan] = False
+        else:
+            mask[ichan] = True
+
+    mask[mask_edge] = True
+    return mask
+
+def reconstruct_normal(ft, mask):
+
+    """
+    
+    Reconstruct normal distribution within the masked channels.
+
+    Use overall mean and standard deviation of non-masked channels
+    to fill the masked channels with random data following normal
+    distribution. Additionally data is then clipped to -3, +3 sigma
+    after random data is added.
+
+    Parameters:
+
+        ft: np.array
+            Frequency time data.
+
+        mask: np.array
+            Array with 1 corresponding to channels that had masking
+            applied (will be filled with random data) and 0 to channels 
+            that had good data and therefore no masking (will be left
+            how they are).
+
+    Returns:
+
+        ft: np.array
+            Frequency time data with masked channel fille with 
+            random data.
+
+    """
+
+    correct_mean = np.mean(ft[np.where(np.logical_not(mask)), :])
+    correct_stdev = np.std(ft[np.where(np.logical_not(mask)), :])
+    ft[np.where(mask), :] = np.random.normal(correct_mean, correct_stdev, size=(mask.sum(), 256))
+    ft = np.clip(ft, -3, 3)
+
+    return ft
+
 def load_data(csv_files='./train_set.csv', data_dir = './data/train/', n_images = 'dm_fq_time'):
     ID = []; y = []
     dm_time = [] ; fq_time = []
@@ -206,11 +301,30 @@ def load_data(csv_files='./train_set.csv', data_dir = './data/train/', n_images 
                 # Generate the DM-time plane and save it into the archive,
                 # so that we can use it afterwards
                 else:
-                    dm_t = generate_dm_time(hf['/cand/ml/freq_time'], params, freq_time_tmp)
+
+                    freq_time = np.array(hf["/cand/ml/freq_time"])
+                    ft_mask = get_masked_bands(freq_time)
+                    freq_time = reconstruct_normal(freq_time, ft_mask)
+
+                    delta_dm, dm_t = generate_dm_time(freq_time, params, freq_time_tmp)
                     old_ml_group = hf.create_group("/cand/ml/old")
                     old_dm_time_dataset = old_ml_group.create_dataset("dm_time", data=hf["/cand/ml/dm_time"])
                     old_freq_time_dataset = old_ml_group.create_dataset("freq_time", data=hf["/cand/ml/freq_time"])
+                    hf["/cand/ml/freq_time"][...] = freq_time
                     hf["/cand/ml/dm_time"][...] = dm_t
+
+                outfile = os.path.join(data_dir, "plots", hdf5_file + "*.png")
+                ensure_dir(outfile)
+
+                fig, ax = plt.subplots(2, 2, figsize=(10, 10))
+
+                ax[0, 0].imshow(np.array(hf["/cand/ml/old/dm_time"]), aspect="auto", interpolation="none", cmap='gray')
+                ax[0, 1].imshow(np.array(hf["/cand/ml/old/freq_time"]), aspect="auto", interpolation="none", cmap='gray')
+                ax[1, 0].imshow(np.array(hf["/cand/ml/dm_time"]), aspect="auto", interpolation="none", cmap='gray')
+                ax[1, 1].imshow(np.array(hf["/cand/ml/freq_time"]), aspect="auto", interpolation="none", cmap='gray')
+
+                plt.savefig(outfile)
+                plt.close()
 
                 fq_t = np.array(hf['/cand/ml/freq_time'])
 

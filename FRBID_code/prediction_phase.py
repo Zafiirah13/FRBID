@@ -16,6 +16,7 @@ import os
 import h5py
 from FRBID_code.util import ensure_dir
 from FRBID_code.load_data import generate_dm_time, get_parameters
+from FRBID_code.load_data import get_masked_bands, reconstruct_normal
 from keras.models import model_from_json
 from os import path
 from os import listdir
@@ -57,12 +58,17 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_
                 # Generate the DM-time plane and save it into the archive,
                 # so that we can use it afterwards
                 else:
-                    delta_dm, dm_t = generate_dm_time(hf['/cand/ml/freq_time'], params, freq_time_tmp)
+                    freq_time = np.array(hf["/cand/ml/freq_time"])
+                    ft_mask = get_masked_bands(freq_time)
+                    freq_time = reconstruct_normal(freq_time, ft_mask)
+                    
+                    delta_dm, dm_t = generate_dm_time(freq_time, params, freq_time_tmp)
                     old_ml_group = hf.create_group("/cand/ml/old")
                     old_ml_group.attrs["label"] = hf["/cand/ml"].attrs["label"]
                     old_ml_group.attrs["prob"] = hf["/cand/ml"].attrs["prob"]
                     old_dm_time_dataset = old_ml_group.create_dataset("dm_time", data=hf["/cand/ml/dm_time"])
                     old_freq_time_dataset = old_ml_group.create_dataset("freq_time", data=hf["/cand/ml/freq_time"])
+                    hf["/cand/ml/freq_time"][...] = freq_time
                     hf["/cand/ml/dm_time"][...] = dm_t
                     cand_dm = hf["/cand/detection"].attrs["dm"]
                     hf["/cand/ml/"].attrs.create("dm_range", np.array([(cand_dm - delta_dm, cand_dm + delta_dm, "pc cm^-3")], dtype=np.dtype([("start", np.float), ("end", np.float), ("unit", "S8")])))

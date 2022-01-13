@@ -46,38 +46,42 @@ def load_candidate(data_dir = './data/test_set/',n_images = 'dm_fq_time', cands_
      
     freq_time_tmp = np.empty((256, 256), dtype=np.float32)
 
-    for hdf5_file in hdf5_files:
-        row = cand_info[cand_info.hdf5.str.match(path.basename(hdf5_file))]
-        if (row.shape[0] != 0):
-            with h5py.File(hdf5_file, 'r+') as hf:
-                params = get_parameters(row, hf)
+    for idx, hdf5_file in cand_info.iterrows():
 
-                if "/cand/ml/old/dm_time" in hf:
-                    dm_t = np.array(hf["/cand/ml/dm_time"])
-                # We have not processed this file yet
-                # Generate the DM-time plane and save it into the archive,
-                # so that we can use it afterwards
-                else:
-                    freq_time = np.array(hf["/cand/ml/freq_time"])
-                    ft_mask = get_masked_bands(freq_time)
-                    freq_time = reconstruct_normal(freq_time, ft_mask)
-                    
-                    delta_dm, dm_t = generate_dm_time(freq_time, params, freq_time_tmp)
-                    old_ml_group = hf.create_group("/cand/ml/old")
-                    old_ml_group.attrs["label"] = hf["/cand/ml"].attrs["label"]
-                    old_ml_group.attrs["prob"] = hf["/cand/ml"].attrs["prob"]
-                    old_dm_time_dataset = old_ml_group.create_dataset("dm_time", data=hf["/cand/ml/dm_time"])
-                    old_freq_time_dataset = old_ml_group.create_dataset("freq_time", data=hf["/cand/ml/freq_time"])
-                    hf["/cand/ml/freq_time"][...] = freq_time
-                    hf["/cand/ml/dm_time"][...] = dm_t
-                    cand_dm = hf["/cand/detection"].attrs["dm"]
-                    hf["/cand/ml/"].attrs.create("dm_range", np.array([(cand_dm - delta_dm, cand_dm + delta_dm, "pc cm^-3")], dtype=np.dtype([("start", np.float), ("end", np.float), ("unit", "S8")])))
+        file_path = path.join(data_dir, hdf5_file["hdf5"])
 
-                fq_t = np.array(hf['/cand/ml/freq_time'])
+    #for hdf5_file in hdf5_files:
+    #    row = cand_info[cand_info.hdf5.str.match(path.basename(hdf5_file))]
+    #    if (row.shape[0] != 0):
+        with h5py.File(file_path, 'r+') as hf:
+            params = get_parameters(hdf5_file, hf)
 
-                dm_time.append(dm_t)
-                fq_time.append(fq_t)
-                ID.append(path.basename(hdf5_file))
+            if "/cand/ml/old/dm_time" in hf:
+                dm_t = np.array(hf["/cand/ml/dm_time"])
+            # We have not processed this file yet
+            # Generate the DM-time plane and save it into the archive,
+            # so that we can use it afterwards
+            else:
+                freq_time = np.array(hf["/cand/ml/freq_time"])
+                ft_mask = get_masked_bands(freq_time)
+                freq_time = reconstruct_normal(freq_time, ft_mask)
+                
+                delta_dm, dm_t = generate_dm_time(freq_time, params, freq_time_tmp)
+                old_ml_group = hf.create_group("/cand/ml/old")
+                old_ml_group.attrs["label"] = hf["/cand/ml"].attrs["label"]
+                old_ml_group.attrs["prob"] = hf["/cand/ml"].attrs["prob"]
+                old_dm_time_dataset = old_ml_group.create_dataset("dm_time", data=hf["/cand/ml/dm_time"])
+                old_freq_time_dataset = old_ml_group.create_dataset("freq_time", data=hf["/cand/ml/freq_time"])
+                hf["/cand/ml/freq_time"][...] = freq_time
+                hf["/cand/ml/dm_time"][...] = dm_t
+                cand_dm = hf["/cand/detection"].attrs["dm"]
+                hf["/cand/ml/"].attrs.create("dm_range", np.array([(cand_dm - delta_dm, cand_dm + delta_dm, "pc cm^-3")], dtype=np.dtype([("start", np.float), ("end", np.float), ("unit", "S8")])))
+
+            fq_t = np.array(hf['/cand/ml/freq_time'])
+
+            dm_time.append(dm_t)
+            fq_time.append(fq_t)
+            ID.append(hdf5_file["hdf5"])
 
     dm_time_img = np.expand_dims(np.array(dm_time),1)
     fq_time_img = np.expand_dims(np.array(fq_time),1)

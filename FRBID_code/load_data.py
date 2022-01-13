@@ -70,10 +70,10 @@ def get_parameters(row, h5_data):
     bw : bandwidth
     '''
 
-    tsamp_s = row.tsamp_s.values[0]
-    ftop_mhz = row.ftop_mhz.values[0]
-    chan_band_mhz = row.chan_band_mhz.values[0]
-    nchan = row.nchan.values[0]
+    tsamp_s = row.tsamp_s
+    ftop_mhz = row.ftop_mhz
+    chan_band_mhz = row.chan_band_mhz
+    nchan = row.nchan
     o_nchan = 256          #output data has 256 channel
     freq_avg = nchan/o_nchan
 
@@ -267,7 +267,7 @@ def reconstruct_normal(ft, mask):
 
     correct_mean = np.mean(ft[np.where(np.logical_not(mask)), :])
     correct_stdev = np.std(ft[np.where(np.logical_not(mask)), :])
-    ft[np.where(mask), :] = np.random.normal(correct_mean, correct_stdev, size=(mask.sum(), 256))
+    ft[np.where(mask), :] = np.random.normal(correct_mean, correct_stdev, size=(mask.sum(), 256)).astype(np.float32)
     ft = np.clip(ft, -3, 3)
 
     return ft

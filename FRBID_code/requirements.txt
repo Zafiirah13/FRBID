@@ -1,6 +1,6 @@
 pandas==0.24.1
 numpy==1.14.6
-tensorflow-gpu==1.9.0
+tensorflow-gpu==2.5.3
 imbalanced_learn==0.4.3
 matplotlib==3.0.3
 scipy==1.2.1

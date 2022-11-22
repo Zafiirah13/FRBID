@@ -16,7 +16,7 @@ setup(name = 'FRBID',
                         'scipy==1.2.1',
                         'Keras==2.0.9',
                         'imblearn==0.0',
-                        'Pillow==7.1.2',
+                        'Pillow==9.3.0',
                         'scikit_learn==0.23.1'
                         ],
       classifiers=[
